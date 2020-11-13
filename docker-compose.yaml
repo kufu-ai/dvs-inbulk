@@ -1,0 +1,10 @@
+version: "3.8"
+services:
+  inbulk:
+    build:
+      context: ./
+    image: inbulk:local
+    command: bash
+    volumes:
+      - .:/inbulk
+      - ~/.gcp/credential.json:/.gcp/credential.json

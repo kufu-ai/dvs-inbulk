@@ -8,3 +8,4 @@ RUN apt-get install -qy git
 WORKDIR inbulk
 COPY . .
 
+RUN pip install -e .

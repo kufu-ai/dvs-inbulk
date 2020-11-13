@@ -1,0 +1,33 @@
+init:
+  credential-file: /.gcp/credential.json
+  service: bigquery
+in:
+  query: |
+    select
+      id
+    from Dataset.users
+    where
+      id > ${last_id}
+      and _partitiontime > '${last_modified}'
+  vars:
+    - name: last_modified
+      database: Destination
+      table: users
+      mode: meta
+      field: last_modified_time
+    - name: last_id
+      database: Destination
+      table: users
+      mode: max
+      field: id
+out:
+  project: project
+  database: Destination
+  table: users
+  mode: merge # append, replace, merge
+  merge:
+    order:
+      - column: id
+        desc: True
+    keys:
+      - id

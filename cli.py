@@ -1,6 +1,7 @@
 import argparse
 import yaml
 import bq
+import config
 
 parser = argparse.ArgumentParser(description='ETL framework.')
 parser.add_argument(
@@ -13,9 +14,9 @@ parser.add_argument(
 args = parser.parse_args()
 
 def main():
-    with open(args.path[0]) as file:
-        conf = yaml.safe_load(file)
-    b = bq.BigQuery(conf)
+    conf = config.Config.load(args.path[0])
+    conf.valid()
+    b = bq.BigQuery(conf.conf)
     b.wait_job()
 
 if __name__ == "__main__":

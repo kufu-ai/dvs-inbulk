@@ -9,6 +9,7 @@ setup(
         "pyarrow",
         "google-cloud-bigquery",
         "google-cloud-bigquery-storage",
+        "jsonschema",
     ],
     entry_points={
         "console_scripts": [

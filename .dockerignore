@@ -4,3 +4,4 @@ __pycache__
 .dockerignore
 .git
 fixtures
+docker-compose.yaml

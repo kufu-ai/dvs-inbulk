@@ -1,5 +1,5 @@
 import argparse
-import yaml
+from logger import getLogger
 import bq
 import config
 
@@ -13,11 +13,15 @@ parser.add_argument(
 )
 args = parser.parse_args()
 
+log = getLogger(__name__)
+
 def main():
+    log.info('Job is starged')
     conf = config.Config.load(args.path[0])
     conf.valid()
     b = bq.BigQuery(conf.conf)
     b.wait_job()
+    log.info('SUCCESS')
 
 if __name__ == "__main__":
     main()

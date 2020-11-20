@@ -6,14 +6,20 @@ import time
 class BigQuery:
     WAIT_INTERVAL = 5
 
-    def __init__(self, conf):
+    def __init__(self, conf, dryrun=False):
         self.conf = conf
+        self.dryrun = dryrun
 
     @property
     def client(self):
         if not hasattr(self, '__client'):
             self.__client = bigquery.Client.from_service_account_json(self.conf['init']['credential-file'])
         return self.__client
+
+    def query(self, q, job_config=None):
+        if self.dryrun:
+            print('==================\n' + q + '\n==================\n')
+        return self.client.query(q, job_config)
 
     def fetch_var_query(self, database, table, field, mode):
         if mode == 'meta':
@@ -41,7 +47,7 @@ class BigQuery:
     def fetch_var(self, name, database, table, field, mode, default=None):
         query = self.fetch_var_query(database, table, field, mode)
         try:
-            job = self.client.query(query)
+            job = self.query(query)
             df = job.to_dataframe()
             return df['var'][0]
         except (KeyError, NotFound):
@@ -151,11 +157,14 @@ class BigQuery:
     def start_job(self):
         q = self.formatted_query()
         q = self.decorated_query(q)
-        job = self.client.query(q, job_config=self.job_config())
+        job = self.query(q, job_config=self.job_config())
         return job
 
     def wait_job(self):
         job = self.start_job()
+
+        if self.dryrun:
+            return
         while not job.done():
             time.sleep(self.WAIT_INTERVAL)
 

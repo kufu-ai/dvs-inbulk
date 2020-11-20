@@ -2,6 +2,17 @@ from string import Template
 from google.cloud import bigquery
 from google.cloud.exceptions import NotFound
 import time
+import pandas as pd
+
+class DryRunJob:
+    def to_dataframe(self):
+        return pd.DataFrame(columns=['var'], data=['<<DUMMY_VAR>>'])
+
+    def done(self):
+        return True
+
+    def error_result(self):
+        return None
 
 class BigQuery:
     WAIT_INTERVAL = 5
@@ -19,6 +30,7 @@ class BigQuery:
     def query(self, q, job_config=None):
         if self.dryrun:
             print('==================\n' + q + '\n==================\n')
+            return DryRunJob()
         return self.client.query(q, job_config)
 
     def fetch_var_query(self, database, table, field, mode):

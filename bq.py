@@ -38,12 +38,16 @@ class BigQuery:
                     field=field,
                     mode=mode)
 
-    def fetch_var(self, name, database, table, field, mode):
+    def fetch_var(self, name, database, table, field, mode, default=None):
         query = self.fetch_var_query(database, table, field, mode)
         try:
             job = self.client.query(query)
             df = job.to_dataframe()
             return df['var'][0]
+        except (KeyError, NotFound):
+            if default == None:
+                raise AttributeError(f"Cannot fetch var: {name}")
+            return default
         except:
             raise AttributeError(f"Cannot fetch var: {name}")
 

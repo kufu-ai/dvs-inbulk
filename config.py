@@ -60,6 +60,8 @@ properties:
                 - min
             field:
               type: string
+            default:
+              type: string
   out:
     type: object
     required:

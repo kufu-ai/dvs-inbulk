@@ -1,5 +1,6 @@
 from string import Template
 from google.cloud import bigquery
+from google.cloud.exceptions import NotFound
 import time
 
 class BigQuery:
@@ -84,9 +85,17 @@ class BigQuery:
                 create_disposition=bigquery.job.CreateDisposition.CREATE_IF_NEEDED,
                 )
 
+    def is_exists(self, table):
+        try:
+            self.client.get_table(table)
+            return True
+        except NotFound:
+            return False
+
     def decorated_query(self, query):
         conf = self.conf['out']
-        if conf['mode'] != 'merge':
+        table_id = self.table_id(conf['project'], conf['database'], conf['table'])
+        if conf['mode'] != 'merge' or not self.is_exists(table_id):
             return query
 
         tmpl = '''
@@ -108,7 +117,7 @@ class BigQuery:
             ),
             ranks as (
                 select
-                    *,
+                    * except(_order),
                     row_number() over(partition by ${keys} order by ${order} ) as last_record,
                 from unify
             )
@@ -119,7 +128,7 @@ class BigQuery:
                 last_record = 1
         '''
         variables = {
-                'table': self.table_id(conf['project'], conf['database'], conf['table']),
+                'table': table_id,
                 'query': query,
                 'keys': ', '.join(conf['merge']['keys']),
                 'order': self.order_string(conf['merge']),

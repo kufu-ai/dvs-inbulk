@@ -93,11 +93,17 @@ class BigQuery:
         with
             unify as (
                 select
-                    *
+                    *,
+                    2 _order,
                 from ${table}
                 union all
                 (
+                    select
+                        *,
+                        1 _order,
+                    from (
                     ${query}
+                    )
                 )
             ),
             ranks as (
@@ -116,15 +122,18 @@ class BigQuery:
                 'table': self.table_id(conf['project'], conf['database'], conf['table']),
                 'query': query,
                 'keys': ', '.join(conf['merge']['keys']),
-                'order': self.order_string(conf['merge']['order']),
+                'order': self.order_string(conf['merge']),
         }
         return Template(tmpl).substitute(**variables)
 
     def order_string(self, conf):
+        if 'order' not in conf.keys():
+            return '_order'
+
         def fmt(column, desc=False):
             mode = 'desc' if desc else 'asc'
             return f"{column} {mode}"
-        return ', '.join([fmt(order['column'], order['desc']) for order in conf])
+        return ', '.join([fmt(order['column'], order['desc']) for order in conf['order']])
 
     def start_job(self):
         q = self.formatted_query()

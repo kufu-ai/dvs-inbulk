@@ -50,11 +50,11 @@ docker run -v path-to-credential.json:/.gcp/credential.json -v $PWD:/src davinci
 ```
 
 # Configuration
-|field|Description|
+|Field|Description|
 |-|-|
 |in.query| Query|
 |in.vars| Settings for embedding existing table data and meta information in queries.<br>If you write it in a query like `${name}`, it will be expanded at runtime.<br>Can be used for difference execution, etc.|
-}in.vars[].default|Set the value to be used if the table does not exist.|
+|in.vars[].default|Set the value to be used if the table does not exist.|
 |out.project|Destination GCP Project|
 |out.database|Destination dataset name|
 |out.table| Destination table name|

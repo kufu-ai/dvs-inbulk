@@ -8,3 +8,11 @@ services:
     volumes:
       - .:/inbulk
       - ~/.gcp/credential.json:/.gcp/credential.json
+  inbulk-test:
+    build:
+      context: ./
+      target: test
+    image: inbulk:test
+    command: pytest
+    volumes:
+      - .:/inbulk

@@ -8,4 +8,10 @@ RUN apt-get install -qy git
 WORKDIR inbulk
 COPY . .
 
+FROM base AS test
+
+RUN pip install -e .[test]
+
+FROM base
+
 RUN pip install -e .

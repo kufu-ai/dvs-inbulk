@@ -19,6 +19,10 @@ class Config:
     def schema(self):
         return '''
 type: object
+required:
+  - init
+  - in
+  - out
 properties:
   init:
     type: object

@@ -41,7 +41,7 @@ class BigQuery:
                 from `${database}.__TABLES__`
                 where table_id = '${table}'
                 limit 1
-            '''
+'''
             return Template(query).substitute(database=database, table=table, field=field)
         elif mode in ('max', 'min'):
             query = '''
@@ -49,7 +49,7 @@ class BigQuery:
                     ${mode}(${field}) var
                 from ${database}.${table}
                 limit 1
-            '''
+'''
             return Template(query).substitute(
                     database=database,
                     table=table,
@@ -73,7 +73,7 @@ class BigQuery:
         if hasattr(self, '__fetched_vars'):
             return self.__fetched_vars
 
-        if not self.conf['in']['vars']:
+        if 'vars' not in self.conf['in'].keys():
             return {}
 
         self.__fetched_vars = {}
@@ -148,7 +148,7 @@ class BigQuery:
             from ranks
             where
                 last_record = 1
-        '''
+'''
         variables = {
                 'table': table_id,
                 'query': query,
@@ -164,7 +164,7 @@ class BigQuery:
         def fmt(column, desc=False):
             mode = 'desc' if desc else 'asc'
             return f"{column} {mode}"
-        return ', '.join([fmt(order['column'], order['desc']) for order in conf['order']])
+        return ', '.join([fmt(order['column'], 'desc' in order.keys() and order['desc']) for order in conf['order']])
 
     def start_job(self):
         q = self.formatted_query()

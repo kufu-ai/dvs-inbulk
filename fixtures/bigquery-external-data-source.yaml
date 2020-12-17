@@ -1,0 +1,17 @@
+init:
+  credentials:
+    file: /.gcp/credential.json
+    scopes:
+      - https://www.googleapis.com/auth/spreadsheets.readonly
+      - https://www.googleapis.com/auth/drive.readonly
+      - https://www.googleapis.com/auth/bigquery
+    subject: name@delegate.domain
+  service: bigquery
+in:
+  query: |
+    select * from Dataset.external_data_source_table
+out:
+  project: project
+  database: Destination
+  table: table
+  mode: replace

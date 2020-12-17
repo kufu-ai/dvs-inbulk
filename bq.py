@@ -1,6 +1,7 @@
 from string import Template
 from google.cloud import bigquery
 from google.cloud.exceptions import NotFound
+from google.oauth2 import service_account
 import time
 import pandas as pd
 
@@ -22,9 +23,37 @@ class BigQuery:
         self.dryrun = dryrun
 
     @property
+    def credentials(self):
+        if hasattr(self, '__credentials'):
+            return self.__credentials
+
+        conf = self.conf['init']
+        scopes = None
+        subject = None
+        if 'credentials' in conf.keys():
+            cred = conf['credentials']
+            if 'scopes' in cred.keys():
+                scopes = cred['scopes']
+
+            if 'subject' in cred.keys():
+                subject = cred['subject']
+            self.__credentials = { 'file': cred['file'], 'scopes': scopes, 'subject': subject }
+            return self.__credentials
+
+        if 'credential-file' in conf.keys():
+            self.__credentials = { 'file': conf['file'], 'scopes': scopes, 'subject': subject }
+            return self.__credentials
+
+        raise AttributeError("Credentials is not found: Set up init.credentials or init.credential-file")
+
+    @property
     def client(self):
         if not hasattr(self, '__client'):
-            self.__client = bigquery.Client.from_service_account_json(self.conf['init']['credential-file'])
+            credentials = service_account.Credentials.from_service_account_file(
+                    self.credentials['file'],
+                    scopes=self.credentials['scopes'],
+                    ).with_subject(self.credentials['subject'])
+            self.__client = bigquery.Client(credentials=credentials, project=credentials.project_id)
         return self.__client
 
     def query(self, q, job_config=None):

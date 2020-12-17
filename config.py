@@ -31,6 +31,19 @@ properties:
     properties:
       credential-file:
         type: string
+      credentials:
+        type: object
+        required:
+          - file
+        properties:
+          file:
+            type: string
+          scopes:
+            type: array
+            items:
+              type: string
+          subject:
+            type: string
       service:
         type: string
         enum:

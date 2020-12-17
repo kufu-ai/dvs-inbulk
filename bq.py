@@ -41,7 +41,7 @@ class BigQuery:
             return self.__credentials
 
         if 'credential-file' in conf.keys():
-            self.__credentials = { 'file': conf['file'], 'scopes': scopes, 'subject': subject }
+            self.__credentials = { 'file': conf['credential-file'], 'scopes': scopes, 'subject': subject }
             return self.__credentials
 
         raise AttributeError("Credentials is not found: Set up init.credentials or init.credential-file")

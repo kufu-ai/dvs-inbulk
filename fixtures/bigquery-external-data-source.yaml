@@ -1,17 +1,11 @@
 init:
-  credentials:
-    file: /.gcp/credential.json
-    scopes:
-      - https://www.googleapis.com/auth/spreadsheets.readonly
-      - https://www.googleapis.com/auth/drive.readonly
-      - https://www.googleapis.com/auth/bigquery
-    subject: name@delegate.domain
+  credential-file: /.gcp/credential.json
   service: bigquery
 in:
   query: |
-    select * from Dataset.external_data_source_table
+    select * from ZaimV3.default_categories
 out:
-  project: project
-  database: Destination
-  table: table
+  project: zaim-bigquery
+  database: ZaimDWH
+  table: test_dest
   mode: replace

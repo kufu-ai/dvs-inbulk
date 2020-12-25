@@ -8,6 +8,7 @@ services:
     volumes:
       - .:/inbulk
       - ~/.gcp/credential.json:/.gcp/credential.json
+      - ~/.gcp/credential.datamart.json:/.gcp/credential.datamart.json
   inbulk-test:
     build:
       context: ./

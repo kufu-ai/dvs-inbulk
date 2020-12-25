@@ -134,7 +134,13 @@ class BigQuery:
                 destination=self.table_id(conf['project'], conf['database'], conf['table']),
                 write_disposition=self.write_disposition(conf['mode']),
                 create_disposition=bigquery.job.CreateDisposition.CREATE_IF_NEEDED,
+                time_partitioning=self.time_partitioning(conf)
                 )
+    def time_partitioning(self, conf):
+        if 'partition' not in conf.keys():
+            return None
+
+        return bigquery.table.TimePartitioning(type_=conf['partition']['type'], field=conf['partition']['field'])
 
     def is_exists(self, table):
         try:

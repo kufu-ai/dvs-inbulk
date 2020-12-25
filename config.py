@@ -117,4 +117,24 @@ properties:
             type: array
             items:
               type: string
+      partition:
+        type: object
+        required:
+          - mode
+          - field
+          - type
+        properties:
+          mode:
+            type: string
+            enum:
+              - time
+          field:
+            type: string
+          type:
+            type: string
+            enum:
+              - DAY
+              - HOUR
+              - MONTH
+              - YEAR
         '''

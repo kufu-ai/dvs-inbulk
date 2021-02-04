@@ -129,6 +129,8 @@ class TestBigQuery:
         mocker.patch.object(BigQuery, 'query', lambda *args, **kwargs: mock)
         mocker.patch.object(BigQuery, 'is_exists', lambda *args, **kwargs: True)
         assert bq.decorated_query('query') == '''
+        
+
         with
             unify as (
                 select
@@ -182,3 +184,50 @@ class TestBigQuery:
         mocker.patch.object(BigQuery, 'query', lambda *args, **kwargs: mock)
         mocker.patch.object(BigQuery, 'is_exists', lambda *args, **kwargs: False)
         assert bq.decorated_query('query') == 'query'
+
+    def test_decorated_query_with_udf(self, mocker):
+        conf = copy.deepcopy(self.conf)
+        conf['out']['mode'] = 'merge'
+        conf['out']['merge'] = {
+                    'order': [
+                        { 'column': 'col1', 'desc': True },
+                        { 'column': 'col2' },
+                    ],
+                    'keys': ['id'],
+                }
+
+        bq = BigQuery(conf, dryrun=True)
+        mock = mocker.Mock(to_dataframe=lambda : pd.DataFrame(columns=['var'], data=['testdata']))
+        mocker.patch.object(BigQuery, 'query', lambda *args, **kwargs: mock)
+        mocker.patch.object(BigQuery, 'is_exists', lambda *args, **kwargs: True)
+        assert bq.decorated_query('create temp function t(id int64) as (cast(id as string)); query') == '''
+        create temp function t(id int64) as (cast(id as string));
+
+        with
+            unify as (
+                select
+                    *,
+                    2 _order,
+                from project.database.table
+                union all
+                (
+                    select
+                        *,
+                        1 _order,
+                    from (
+                     query
+                    )
+                )
+            ),
+            ranks as (
+                select
+                    * except(_order),
+                    row_number() over(partition by id order by col1 desc, col2 asc ) as last_record,
+                from unify
+            )
+            select
+                * except(last_record)
+            from ranks
+            where
+                last_record = 1
+'''

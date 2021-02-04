@@ -155,7 +155,14 @@ class BigQuery:
         if conf['mode'] != 'merge' or not self.is_exists(table_id):
             return query
 
+        queries = query.split(';')
+        query = queries[-1]
+        udfs = ';'.join(queries[0:-1])
+        udfs = '' if (len(udfs) == 0) else udfs + ';'
+
         tmpl = '''
+        ${udfs}
+
         with
             unify as (
                 select
@@ -186,6 +193,7 @@ class BigQuery:
 '''
         variables = {
                 'table': table_id,
+                'udfs': udfs,
                 'query': query,
                 'keys': ', '.join(conf['merge']['keys']),
                 'order': self.order_string(conf['merge']),

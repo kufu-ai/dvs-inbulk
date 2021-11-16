@@ -136,7 +136,6 @@ class BigQuery:
                 create_disposition=bigquery.job.CreateDisposition.CREATE_IF_NEEDED,
                 time_partitioning=self.time_partitioning(conf)
                 )
-
     def time_partitioning(self, conf):
         if 'partition' not in conf.keys():
             return None
@@ -213,10 +212,12 @@ class BigQuery:
     def start_job(self):
         q = self.formatted_query()
         q = self.decorated_query(q)
-        job = self.query(q)
+        job = self.query(q, job_config=self.job_config())
         return job
 
-    def wait_job(self, job):
+    def wait_job(self):
+        job = self.start_job()
+
         if self.dryrun:
             return
         while not job.done():
@@ -224,15 +225,4 @@ class BigQuery:
 
         if job.error_result != None:
             raise RuntimeError(job.error_result)
-
-    def start(self):
-        extract_job = self.start_job()
-
-        self.wait_job(extract_job)
-        extract_job.reload()
-
-        dest = extract_job.destination
-        q = 'select * from ' + self.table_id(dest.project, dest.dataset_id, dest.table_id)
-        load_job = self.query(q, job_config=self.job_config())
-        self.wait_job(load_job)
 

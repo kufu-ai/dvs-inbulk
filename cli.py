@@ -25,7 +25,7 @@ def main():
     conf = config.Config.load(args.path[0])
     conf.valid()
     b = bq.BigQuery(conf.conf, dryrun=args.dry_run)
-    b.wait_job()
+    b.start()
     log.info('SUCCESS')
 
 if __name__ == "__main__":
